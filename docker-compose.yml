@@ -1,0 +1,20 @@
+version: "3.9"
+
+services:
+  food-model:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: food-nutrition-regressor:latest
+    ports:
+      - "${HOST_PORT:-8000}:${CONTAINER_PORT:-8000}"
+    environment:
+      UVICORN_HOST: "0.0.0.0"
+      UVICORN_PORT: "${CONTAINER_PORT:-8000}"
+      FOOD_MODEL_DIR: "/app/model"
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail http://127.0.0.1:$${UVICORN_PORT}/healthz || exit 1"]
+      interval: 30s
+      timeout: 5s
+      start_period: 30s
+      retries: 3

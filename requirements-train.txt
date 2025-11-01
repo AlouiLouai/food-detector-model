@@ -1,0 +1,4 @@
+-r requirements.txt
+datasets==2.19.1
+scikit-learn==1.5.2
+tqdm==4.66.5
