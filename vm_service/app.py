@@ -16,6 +16,7 @@ from typing import Any, Dict, List
 
 import torch
 from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image
 from pydantic import BaseModel, Field, ValidationError
 from torchvision import transforms
@@ -178,7 +179,22 @@ class PredictBody(BaseModel):
     instances: List[InstancePayload]
 
 
+allowed_origins = os.getenv("FOOD_API_ALLOWED_ORIGINS")
+if allowed_origins:
+    origins = [item.strip() for item in allowed_origins.split(",") if item.strip()]
+else:
+    origins = []
+
 app = FastAPI(title="Food Nutrition Regressor", version="1.0.0")
+
+if origins:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 _startup_error: Exception | None = None
 
 

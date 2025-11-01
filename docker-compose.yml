@@ -12,6 +12,7 @@ services:
       UVICORN_HOST: "0.0.0.0"
       UVICORN_PORT: "${CONTAINER_PORT:-8000}"
       FOOD_MODEL_DIR: "/app/model"
+      FOOD_API_ALLOWED_ORIGINS: "${FOOD_API_ALLOWED_ORIGINS:-}"
     healthcheck:
       test: ["CMD-SHELL", "curl --fail http://127.0.0.1:$${UVICORN_PORT}/healthz || exit 1"]
       interval: 30s
