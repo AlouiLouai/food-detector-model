@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "export_timestamp": 1761945218.8928113,
+  "export_timestamp": 1762295790.5216527,
   "framework": {
     "python_version": "3.9.13",
     "system": "Windows",
@@ -23,18 +23,31 @@
     "train_split": "train",
     "validation_split": "validation",
     "test_split": null,
-    "train_val_test_split": "0.7,0.15,0.15",
-    "model": "mobilenet_v3_small",
-    "image_size": 224,
-    "batch_size": 32,
-    "epochs": 20,
-    "learning_rate": 0.0001,
-    "weight_decay": 0.0,
+    "train_val_test_split": "0.75,0.15,0.1",
+    "model": "efficientnet_b4",
+    "image_size": 256,
+    "batch_size": 48,
+    "epochs": 45,
+    "learning_rate": 0.0003,
+    "weight_decay": 0.0001,
     "seed": 42,
     "num_workers": 4,
     "normalize_targets": true,
-    "output_dir": "model_v1",
-    "no_augment": false
+    "output_dir": "model",
+    "no_augment": false,
+    "no_pretrained": false,
+    "freeze_backbone": true,
+    "head_dropout": 0.3,
+    "trainable_backbone_layers": 6,
+    "freeze_epochs": 3,
+    "full_unfreeze_epoch": 24,
+    "unfreeze_lr_factor": 0.5,
+    "no_amp": false,
+    "no_lr_scheduler": false,
+    "grad_clip_norm": 1.0,
+    "early_stop_patience": 8,
+    "early_stop_min_delta": 0.01,
+    "early_stop_warmup": 12
   },
   "target_columns": [
     "total_calories",
@@ -43,187 +56,1461 @@
     "total_protein",
     "total_mass"
   ],
-  "image_size": 224,
+  "image_size": 256,
   "normalize_targets": true,
   "dataset_summary": {
-    "train": 2771,
-    "validation": 244,
-    "test": 245
+    "train": 2445,
+    "validation": 489,
+    "test": 326
   },
   "history_summary": {
-    "epochs_ran": 20,
-    "best_epoch_zero_indexed": 15,
-    "best_epoch_one_indexed": 16,
-    "best_val_loss": 0.9342364326852267
+    "epochs_ran": 45,
+    "best_epoch_zero_indexed": 42,
+    "best_epoch_one_indexed": 43,
+    "best_val_loss": 0.8078347169060892
   },
   "metrics": {
     "validation": {
-      "mse": 3128.934814453125,
-      "mae": 30.324172973632812,
-      "r2": 0.700497031211853,
-      "loss": 1.168714578034448
+      "mse": 1709.521240234375,
+      "mae": 19.970108032226562,
+      "r2": 0.8390321731567383,
+      "loss": 0.8095302172233722,
+      "mae_per_target": {
+        "total_calories": 51.38969421386719,
+        "total_fat": 3.8380374908447266,
+        "total_carb": 5.0857930183410645,
+        "total_protein": 4.9764628410339355,
+        "total_mass": 34.56052780151367
+      },
+      "mse_per_target": {
+        "total_calories": 6035.07275390625,
+        "total_fat": 36.65350341796875,
+        "total_carb": 55.42931365966797,
+        "total_protein": 64.61007690429688,
+        "total_mass": 2355.840087890625
+      },
+      "r2_per_target": {
+        "total_calories": 0.8679816126823425,
+        "total_fat": 0.7982264161109924,
+        "total_carb": 0.77884840965271,
+        "total_protein": 0.8477710485458374,
+        "total_mass": 0.9023332595825195
+      }
     }
   },
   "training_history": [
     {
-      "mse": 5373.8017578125,
-      "mae": 41.951385498046875,
-      "r2": 0.4712675213813782,
-      "loss": 2.0657513258887117,
+      "mse": 11965.775390625,
+      "mae": 59.7137451171875,
+      "r2": 0.12904289364814758,
+      "loss": 4.412766868107646,
+      "mae_per_target": {
+        "total_calories": 152.09764099121094,
+        "total_fat": 9.67706298828125,
+        "total_carb": 11.887327194213867,
+        "total_protein": 14.57088851928711,
+        "total_mass": 110.33574676513672
+      },
+      "mse_per_target": {
+        "total_calories": 38996.1796875,
+        "total_fat": 161.71133422851562,
+        "total_carb": 227.85812377929688,
+        "total_protein": 369.3450012207031,
+        "total_mass": 20073.80078125
+      },
+      "r2_per_target": {
+        "total_calories": 0.14695101976394653,
+        "total_fat": 0.10979652404785156,
+        "total_carb": 0.09089291095733643,
+        "total_protein": 0.12977975606918335,
+        "total_mass": 0.1677943468093872
+      },
       "epoch": 1,
-      "train_loss": 0.6635367529502374
+      "train_loss": 0.9388923821273757,
+      "stage": "head_only",
+      "learning_rate": 0.0003
     },
     {
-      "mse": 4641.62890625,
-      "mae": 37.15850830078125,
-      "r2": 0.5455400943756104,
-      "loss": 1.7637872852262904,
+      "mse": 10464.30859375,
+      "mae": 55.241249084472656,
+      "r2": 0.22013425827026367,
+      "loss": 3.94941923613441,
+      "mae_per_target": {
+        "total_calories": 141.2788848876953,
+        "total_fat": 9.249567031860352,
+        "total_carb": 11.341565132141113,
+        "total_protein": 13.686981201171875,
+        "total_mass": 100.64923858642578
+      },
+      "mse_per_target": {
+        "total_calories": 34563.828125,
+        "total_fat": 149.17576599121094,
+        "total_carb": 207.81454467773438,
+        "total_protein": 333.317138671875,
+        "total_mass": 17067.408203125
+      },
+      "r2_per_target": {
+        "total_calories": 0.24390959739685059,
+        "total_fat": 0.1788034439086914,
+        "total_carb": 0.17086267471313477,
+        "total_protein": 0.21466559171676636,
+        "total_mass": 0.2924312353134155
+      },
       "epoch": 2,
-      "train_loss": 0.4732956589881542
+      "train_loss": 0.8187524212649995,
+      "stage": "head_only",
+      "learning_rate": 0.0003
     },
     {
-      "mse": 3798.65234375,
-      "mae": 33.93120193481445,
-      "r2": 0.6102485060691833,
-      "loss": 1.5179189463130762,
+      "mse": 9498.8974609375,
+      "mae": 52.172142028808594,
+      "r2": 0.28006577491760254,
+      "loss": 3.6451942428245623,
+      "mae_per_target": {
+        "total_calories": 133.89727783203125,
+        "total_fat": 8.874022483825684,
+        "total_carb": 10.904848098754883,
+        "total_protein": 13.11806583404541,
+        "total_mass": 94.0665054321289
+      },
+      "mse_per_target": {
+        "total_calories": 31755.625,
+        "total_fat": 140.5270538330078,
+        "total_carb": 193.61036682128906,
+        "total_protein": 311.1988525390625,
+        "total_mass": 15093.5439453125
+      },
+      "r2_per_target": {
+        "total_calories": 0.305339515209198,
+        "total_fat": 0.22641372680664062,
+        "total_carb": 0.22753441333770752,
+        "total_protein": 0.2667788863182068,
+        "total_mass": 0.37426239252090454
+      },
       "epoch": 3,
-      "train_loss": 0.41379145650345683
+      "train_loss": 0.7354190898819204,
+      "stage": "head_only",
+      "learning_rate": 0.0003
     },
     {
-      "mse": 3507.08349609375,
-      "mae": 32.234073638916016,
-      "r2": 0.6365607976913452,
-      "loss": 1.3866704096559619,
+      "mse": 5345.14208984375,
+      "mae": 38.667388916015625,
+      "r2": 0.5358650088310242,
+      "loss": 2.3470110629965193,
+      "mae_per_target": {
+        "total_calories": 101.6384506225586,
+        "total_fat": 7.338446617126465,
+        "total_carb": 8.759808540344238,
+        "total_protein": 10.660543441772461,
+        "total_mass": 64.93973541259766
+      },
+      "mse_per_target": {
+        "total_calories": 18501.46484375,
+        "total_fat": 101.22745513916016,
+        "total_carb": 131.91453552246094,
+        "total_protein": 216.4912872314453,
+        "total_mass": 7774.6123046875
+      },
+      "r2_per_target": {
+        "total_calories": 0.5952768921852112,
+        "total_fat": 0.44275379180908203,
+        "total_carb": 0.4736880660057068,
+        "total_protein": 0.48992103338241577,
+        "total_mass": 0.6776854991912842
+      },
       "epoch": 4,
-      "train_loss": 0.3775362479949161
+      "train_loss": 0.5727108215993167,
+      "stage": "head_plus_last_6_blocks",
+      "learning_rate": 0.00015
     },
     {
-      "mse": 2758.17919921875,
-      "mae": 27.313701629638672,
-      "r2": 0.6790313124656677,
-      "loss": 1.19911425230933,
+      "mse": 4489.3037109375,
+      "mae": 35.01701354980469,
+      "r2": 0.6012543439865112,
+      "loss": 2.0160543406667886,
+      "mae_per_target": {
+        "total_calories": 90.52963256835938,
+        "total_fat": 6.6867265701293945,
+        "total_carb": 8.080188751220703,
+        "total_protein": 9.73635196685791,
+        "total_mass": 60.0521240234375
+      },
+      "mse_per_target": {
+        "total_calories": 15251.3232421875,
+        "total_fat": 87.44808197021484,
+        "total_carb": 113.91513061523438,
+        "total_protein": 187.61561584472656,
+        "total_mass": 6806.2109375
+      },
+      "r2_per_target": {
+        "total_calories": 0.6663743257522583,
+        "total_fat": 0.5186077356338501,
+        "total_carb": 0.5455020666122437,
+        "total_protein": 0.5579555034637451,
+        "total_mass": 0.7178328037261963
+      },
       "epoch": 5,
-      "train_loss": 0.35199774208588536
+      "train_loss": 0.4820056834469544,
+      "stage": "head_plus_last_6_blocks",
+      "learning_rate": 0.00015
     },
     {
-      "mse": 2670.490478515625,
-      "mae": 26.534343719482422,
-      "r2": 0.6973726153373718,
-      "loss": 1.1606375741176918,
+      "mse": 4342.31982421875,
+      "mae": 34.99814987182617,
+      "r2": 0.617686927318573,
+      "loss": 1.933847860324602,
+      "mae_per_target": {
+        "total_calories": 93.23004913330078,
+        "total_fat": 6.869063854217529,
+        "total_carb": 7.696915149688721,
+        "total_protein": 9.77827262878418,
+        "total_mass": 57.416465759277344
+      },
+      "mse_per_target": {
+        "total_calories": 15242.42578125,
+        "total_fat": 86.87120056152344,
+        "total_carb": 104.87625885009766,
+        "total_protein": 181.98683166503906,
+        "total_mass": 6095.44482421875
+      },
+      "r2_per_target": {
+        "total_calories": 0.6665689945220947,
+        "total_fat": 0.5217834115028381,
+        "total_carb": 0.581565260887146,
+        "total_protein": 0.5712175965309143,
+        "total_mass": 0.747299313545227
+      },
       "epoch": 6,
-      "train_loss": 0.31693650643367793
+      "train_loss": 0.41991043979404896,
+      "stage": "head_plus_last_6_blocks",
+      "learning_rate": 0.00015
     },
     {
-      "mse": 2798.60888671875,
-      "mae": 27.331985473632812,
-      "r2": 0.6994495391845703,
-      "loss": 1.1481497248665231,
+      "mse": 3622.7578125,
+      "mae": 31.0559024810791,
+      "r2": 0.6688453555107117,
+      "loss": 1.674273898508895,
+      "mae_per_target": {
+        "total_calories": 81.49729919433594,
+        "total_fat": 6.108086585998535,
+        "total_carb": 7.258663177490234,
+        "total_protein": 8.822842597961426,
+        "total_mass": 51.5926399230957
+      },
+      "mse_per_target": {
+        "total_calories": 12631.693359375,
+        "total_fat": 74.25724029541016,
+        "total_carb": 95.34912109375,
+        "total_protein": 159.85464477539062,
+        "total_mass": 5152.64501953125
+      },
+      "r2_per_target": {
+        "total_calories": 0.7236793041229248,
+        "total_fat": 0.5912219285964966,
+        "total_carb": 0.6195765733718872,
+        "total_protein": 0.6233636140823364,
+        "total_mass": 0.7863852381706238
+      },
       "epoch": 7,
-      "train_loss": 0.296595619290325
+      "train_loss": 0.37382598694848135,
+      "stage": "head_plus_last_6_blocks",
+      "learning_rate": 0.00015
     },
     {
-      "mse": 3121.79833984375,
-      "mae": 30.334453582763672,
-      "r2": 0.6788281202316284,
-      "loss": 1.2263295455057113,
+      "mse": 3196.257080078125,
+      "mae": 29.056156158447266,
+      "r2": 0.7049555778503418,
+      "loss": 1.491226812569398,
+      "mae_per_target": {
+        "total_calories": 76.18330383300781,
+        "total_fat": 5.67551326751709,
+        "total_carb": 6.895495891571045,
+        "total_protein": 8.123065948486328,
+        "total_mass": 48.4034309387207
+      },
+      "mse_per_target": {
+        "total_calories": 11222.7978515625,
+        "total_fat": 66.71736907958984,
+        "total_carb": 85.96920013427734,
+        "total_protein": 141.92385864257812,
+        "total_mass": 4463.8701171875
+      },
+      "r2_per_target": {
+        "total_calories": 0.7544991374015808,
+        "total_fat": 0.632728099822998,
+        "total_carb": 0.6570005416870117,
+        "total_protein": 0.665610671043396,
+        "total_mass": 0.8149399757385254
+      },
       "epoch": 8,
-      "train_loss": 0.27262358567487543
+      "train_loss": 0.3341667149695882,
+      "stage": "head_plus_last_6_blocks",
+      "learning_rate": 0.00015
     },
     {
-      "mse": 2468.141357421875,
-      "mae": 25.413330078125,
-      "r2": 0.6944441795349121,
-      "loss": 1.1101279649578157,
+      "mse": 2984.934326171875,
+      "mae": 27.64859962463379,
+      "r2": 0.7239939570426941,
+      "loss": 1.3943231227695332,
+      "mae_per_target": {
+        "total_calories": 73.29391479492188,
+        "total_fat": 5.531911849975586,
+        "total_carb": 6.560417175292969,
+        "total_protein": 7.670414924621582,
+        "total_mass": 45.18636703491211
+      },
+      "mse_per_target": {
+        "total_calories": 10677.947265625,
+        "total_fat": 63.69526290893555,
+        "total_carb": 80.99534606933594,
+        "total_protein": 130.73129272460938,
+        "total_mass": 3971.30078125
+      },
+      "r2_per_target": {
+        "total_calories": 0.7664178609848022,
+        "total_fat": 0.6493644714355469,
+        "total_carb": 0.6768451929092407,
+        "total_protein": 0.6919816732406616,
+        "total_mass": 0.835360586643219
+      },
       "epoch": 9,
-      "train_loss": 0.27072984747015927
+      "train_loss": 0.30567606742396675,
+      "stage": "head_plus_last_6_blocks",
+      "learning_rate": 0.00015
     },
     {
-      "mse": 3106.913330078125,
-      "mae": 29.276941299438477,
-      "r2": 0.6732641458511353,
-      "loss": 1.204089258537918,
+      "mse": 2771.26171875,
+      "mae": 26.69136619567871,
+      "r2": 0.7384703159332275,
+      "loss": 1.320576178271834,
+      "mae_per_target": {
+        "total_calories": 70.28367614746094,
+        "total_fat": 5.394493103027344,
+        "total_carb": 6.397338390350342,
+        "total_protein": 7.334619998931885,
+        "total_mass": 44.04669952392578
+      },
+      "mse_per_target": {
+        "total_calories": 9871.431640625,
+        "total_fat": 59.59468460083008,
+        "total_carb": 79.56885528564453,
+        "total_protein": 123.88431549072266,
+        "total_mass": 3721.825439453125
+      },
+      "r2_per_target": {
+        "total_calories": 0.784060537815094,
+        "total_fat": 0.6719377040863037,
+        "total_carb": 0.6825366020202637,
+        "total_protein": 0.708113968372345,
+        "total_mass": 0.845703125
+      },
       "epoch": 10,
-      "train_loss": 0.24726640895810295
+      "train_loss": 0.28714842244159955,
+      "stage": "head_plus_last_6_blocks",
+      "learning_rate": 0.00015
     },
     {
-      "mse": 2345.708984375,
-      "mae": 26.166589736938477,
-      "r2": 0.722298264503479,
-      "loss": 1.0449461389760502,
+      "mse": 2761.27978515625,
+      "mae": 26.823205947875977,
+      "r2": 0.744347870349884,
+      "loss": 1.2918863589046923,
+      "mae_per_target": {
+        "total_calories": 71.68605041503906,
+        "total_fat": 5.368354797363281,
+        "total_carb": 6.224366664886475,
+        "total_protein": 7.448551654815674,
+        "total_mass": 43.388736724853516
+      },
+      "mse_per_target": {
+        "total_calories": 10065.865234375,
+        "total_fat": 60.00334548950195,
+        "total_carb": 73.6995620727539,
+        "total_protein": 122.77397918701172,
+        "total_mass": 3484.058349609375
+      },
+      "r2_per_target": {
+        "total_calories": 0.7798072695732117,
+        "total_fat": 0.6696880459785461,
+        "total_carb": 0.7059538960456848,
+        "total_protein": 0.7107300758361816,
+        "total_mass": 0.855560302734375
+      },
       "epoch": 11,
-      "train_loss": 0.2151190013349465
+      "train_loss": 0.2589799719354126,
+      "stage": "head_plus_last_6_blocks",
+      "learning_rate": 0.00015
     },
     {
-      "mse": 3122.10009765625,
-      "mae": 29.507843017578125,
-      "r2": 0.6766210794448853,
-      "loss": 1.1907965941507308,
+      "mse": 2573.960205078125,
+      "mae": 25.641613006591797,
+      "r2": 0.7600947618484497,
+      "loss": 1.2113799444249316,
+      "mae_per_target": {
+        "total_calories": 68.24011993408203,
+        "total_fat": 5.051154613494873,
+        "total_carb": 6.158504962921143,
+        "total_protein": 6.894299507141113,
+        "total_mass": 41.864013671875
+      },
+      "mse_per_target": {
+        "total_calories": 9375.3212890625,
+        "total_fat": 55.73418426513672,
+        "total_carb": 71.95545959472656,
+        "total_protein": 112.74359130859375,
+        "total_mass": 3254.04296875
+      },
+      "r2_per_target": {
+        "total_calories": 0.7949130535125732,
+        "total_fat": 0.6931893229484558,
+        "total_carb": 0.7129124999046326,
+        "total_protein": 0.7343628406524658,
+        "total_mass": 0.8650961518287659
+      },
       "epoch": 12,
-      "train_loss": 0.19859869216203432
+      "train_loss": 0.23333897967280054,
+      "stage": "head_plus_last_6_blocks",
+      "learning_rate": 0.00015
     },
     {
-      "mse": 3097.01513671875,
-      "mae": 29.065332412719727,
-      "r2": 0.6898583173751831,
-      "loss": 1.182746410369873,
+      "mse": 2375.845458984375,
+      "mae": 24.586685180664062,
+      "r2": 0.7751156091690063,
+      "loss": 1.1351944781032322,
+      "mae_per_target": {
+        "total_calories": 64.52136993408203,
+        "total_fat": 4.891698360443115,
+        "total_carb": 5.985702037811279,
+        "total_protein": 6.741261005401611,
+        "total_mass": 40.79336929321289
+      },
+      "mse_per_target": {
+        "total_calories": 8524.0322265625,
+        "total_fat": 51.2545280456543,
+        "total_carb": 69.40702056884766,
+        "total_protein": 105.75688934326172,
+        "total_mass": 3128.778564453125
+      },
+      "r2_per_target": {
+        "total_calories": 0.8135351538658142,
+        "total_fat": 0.7178493738174438,
+        "total_carb": 0.7230802774429321,
+        "total_protein": 0.7508243322372437,
+        "total_mass": 0.8702892661094666
+      },
       "epoch": 13,
-      "train_loss": 0.15563194212264767
+      "train_loss": 0.2332268600814913,
+      "stage": "head_plus_last_6_blocks",
+      "learning_rate": 0.00015
     },
     {
-      "mse": 2907.07958984375,
-      "mae": 28.92056655883789,
-      "r2": 0.6892446279525757,
-      "loss": 1.1516459496294866,
+      "mse": 2384.39404296875,
+      "mae": 24.579837799072266,
+      "r2": 0.778044581413269,
+      "loss": 1.1194247302345948,
+      "mae_per_target": {
+        "total_calories": 64.14442443847656,
+        "total_fat": 4.826871871948242,
+        "total_carb": 5.995406627655029,
+        "total_protein": 6.493095397949219,
+        "total_mass": 41.439369201660156
+      },
+      "mse_per_target": {
+        "total_calories": 8491.9599609375,
+        "total_fat": 51.378395080566406,
+        "total_carb": 68.8125991821289,
+        "total_protein": 99.11469268798828,
+        "total_mass": 3210.711181640625
+      },
+      "r2_per_target": {
+        "total_calories": 0.8142367601394653,
+        "total_fat": 0.7171674966812134,
+        "total_carb": 0.7254518866539001,
+        "total_protein": 0.7664741277694702,
+        "total_mass": 0.8668925762176514
+      },
       "epoch": 14,
-      "train_loss": 0.3055939133907862
+      "train_loss": 0.21965350726265118,
+      "stage": "head_plus_last_6_blocks",
+      "learning_rate": 0.00015
     },
     {
-      "mse": 2268.9091796875,
-      "mae": 24.98397445678711,
-      "r2": 0.743270754814148,
-      "loss": 0.971431489850654,
+      "mse": 2371.49658203125,
+      "mae": 24.524852752685547,
+      "r2": 0.7789795994758606,
+      "loss": 1.113973574648118,
+      "mae_per_target": {
+        "total_calories": 64.42081451416016,
+        "total_fat": 4.8581342697143555,
+        "total_carb": 6.068469047546387,
+        "total_protein": 6.474646091461182,
+        "total_mass": 40.80217742919922
+      },
+      "mse_per_target": {
+        "total_calories": 8532.2392578125,
+        "total_fat": 51.05810546875,
+        "total_carb": 70.46479034423828,
+        "total_protein": 96.52851104736328,
+        "total_mass": 3107.189697265625
+      },
+      "r2_per_target": {
+        "total_calories": 0.8133556246757507,
+        "total_fat": 0.7189306020736694,
+        "total_carb": 0.7188599705696106,
+        "total_protein": 0.7725674510002136,
+        "total_mass": 0.8711842894554138
+      },
       "epoch": 15,
-      "train_loss": 0.16197874363967546
+      "train_loss": 0.20763148751361238,
+      "stage": "head_plus_last_6_blocks",
+      "learning_rate": 0.00015
     },
     {
-      "mse": 2191.12060546875,
-      "mae": 24.895523071289062,
-      "r2": 0.7513355016708374,
-      "loss": 0.9342364326852267,
+      "mse": 2234.363525390625,
+      "mae": 23.60244369506836,
+      "r2": 0.7908000946044922,
+      "loss": 1.0533891904085935,
+      "mae_per_target": {
+        "total_calories": 61.824806213378906,
+        "total_fat": 4.681488037109375,
+        "total_carb": 5.93827486038208,
+        "total_protein": 5.975888729095459,
+        "total_mass": 39.59177780151367
+      },
+      "mse_per_target": {
+        "total_calories": 8001.478515625,
+        "total_fat": 48.77226257324219,
+        "total_carb": 68.24250793457031,
+        "total_protein": 87.97111511230469,
+        "total_mass": 2965.34912109375
+      },
+      "r2_per_target": {
+        "total_calories": 0.8249660730361938,
+        "total_fat": 0.7315139770507812,
+        "total_carb": 0.7277264595031738,
+        "total_protein": 0.7927297353744507,
+        "total_mass": 0.8770646452903748
+      },
       "epoch": 16,
-      "train_loss": 0.1297030385835039
+      "train_loss": 0.19789724386542853,
+      "stage": "head_plus_last_6_blocks",
+      "learning_rate": 0.00015
     },
     {
-      "mse": 2549.59814453125,
-      "mae": 27.107900619506836,
-      "r2": 0.7312871813774109,
-      "loss": 1.0038517654919235,
+      "mse": 2222.56396484375,
+      "mae": 23.671024322509766,
+      "r2": 0.7910815477371216,
+      "loss": 1.052079563491915,
+      "mae_per_target": {
+        "total_calories": 61.81184387207031,
+        "total_fat": 4.540452480316162,
+        "total_carb": 6.081747531890869,
+        "total_protein": 6.103830814361572,
+        "total_mass": 39.81730651855469
+      },
+      "mse_per_target": {
+        "total_calories": 7939.1083984375,
+        "total_fat": 46.169830322265625,
+        "total_carb": 71.00322723388672,
+        "total_protein": 89.32556915283203,
+        "total_mass": 2967.209716796875
+      },
+      "r2_per_target": {
+        "total_calories": 0.8263304829597473,
+        "total_fat": 0.7458400726318359,
+        "total_carb": 0.716711699962616,
+        "total_protein": 0.7895384430885315,
+        "total_mass": 0.8769875168800354
+      },
       "epoch": 17,
-      "train_loss": 0.11785192537322796
+      "train_loss": 0.17656702145111342,
+      "stage": "head_plus_last_6_blocks",
+      "learning_rate": 0.00015
     },
     {
-      "mse": 2866.367919921875,
-      "mae": 28.9171142578125,
-      "r2": 0.7207118272781372,
-      "loss": 1.0847422334014392,
+      "mse": 2235.36083984375,
+      "mae": 23.335636138916016,
+      "r2": 0.793302595615387,
+      "loss": 1.0412107557363062,
+      "mae_per_target": {
+        "total_calories": 61.29048156738281,
+        "total_fat": 4.5959320068359375,
+        "total_carb": 5.8868255615234375,
+        "total_protein": 5.808889389038086,
+        "total_mass": 39.09604263305664
+      },
+      "mse_per_target": {
+        "total_calories": 8076.6669921875,
+        "total_fat": 48.1937370300293,
+        "total_carb": 66.40322875976562,
+        "total_protein": 87.6151123046875,
+        "total_mass": 2897.9248046875
+      },
+      "r2_per_target": {
+        "total_calories": 0.8233213424682617,
+        "total_fat": 0.7346986532211304,
+        "total_carb": 0.7350647449493408,
+        "total_protein": 0.79356849193573,
+        "total_mass": 0.8798598647117615
+      },
       "epoch": 18,
-      "train_loss": 0.11363774078260558
+      "train_loss": 0.17401865318508966,
+      "stage": "head_plus_last_6_blocks",
+      "learning_rate": 0.00015
     },
     {
-      "mse": 2297.585205078125,
-      "mae": 25.277202606201172,
-      "r2": 0.7519961595535278,
-      "loss": 0.95005151092029,
+      "mse": 2276.17236328125,
+      "mae": 23.989913940429688,
+      "r2": 0.7933632135391235,
+      "loss": 1.0408408451665399,
+      "mae_per_target": {
+        "total_calories": 63.57624053955078,
+        "total_fat": 4.6056742668151855,
+        "total_carb": 5.816680431365967,
+        "total_protein": 6.215221405029297,
+        "total_mass": 39.735740661621094
+      },
+      "mse_per_target": {
+        "total_calories": 8225.634765625,
+        "total_fat": 48.20614242553711,
+        "total_carb": 65.9115219116211,
+        "total_protein": 85.8991470336914,
+        "total_mass": 2955.21533203125
+      },
+      "r2_per_target": {
+        "total_calories": 0.8200626373291016,
+        "total_fat": 0.7346304059028625,
+        "total_carb": 0.737026572227478,
+        "total_protein": 0.7976114749908447,
+        "total_mass": 0.8774847388267517
+      },
       "epoch": 19,
-      "train_loss": 0.1130375883362862
+      "train_loss": 0.1703788865380492,
+      "stage": "head_plus_last_6_blocks",
+      "learning_rate": 0.00015
     },
     {
-      "mse": 3128.934814453125,
-      "mae": 30.324172973632812,
-      "r2": 0.700497031211853,
-      "loss": 1.168714578034448,
+      "mse": 2066.97607421875,
+      "mae": 23.000255584716797,
+      "r2": 0.806354820728302,
+      "loss": 0.9745075444258552,
+      "mae_per_target": {
+        "total_calories": 59.353240966796875,
+        "total_fat": 4.3589067459106445,
+        "total_carb": 5.834074974060059,
+        "total_protein": 5.945223808288574,
+        "total_mass": 39.50979995727539
+      },
+      "mse_per_target": {
+        "total_calories": 7267.0478515625,
+        "total_fat": 42.84867858886719,
+        "total_carb": 66.61567687988281,
+        "total_protein": 79.9045181274414,
+        "total_mass": 2878.458984375
+      },
+      "r2_per_target": {
+        "total_calories": 0.8410319089889526,
+        "total_fat": 0.7641226649284363,
+        "total_carb": 0.7342171669006348,
+        "total_protein": 0.8117355704307556,
+        "total_mass": 0.8806668519973755
+      },
       "epoch": 20,
-      "train_loss": 0.10111139835712497
+      "train_loss": 0.1565068548990905,
+      "stage": "head_plus_last_6_blocks",
+      "learning_rate": 0.00015
+    },
+    {
+      "mse": 2013.85546875,
+      "mae": 22.08148193359375,
+      "r2": 0.811301052570343,
+      "loss": 0.9491798580302295,
+      "mae_per_target": {
+        "total_calories": 56.85626983642578,
+        "total_fat": 4.306579113006592,
+        "total_carb": 5.752442836761475,
+        "total_protein": 5.670392990112305,
+        "total_mass": 37.82173156738281
+      },
+      "mse_per_target": {
+        "total_calories": 7145.1337890625,
+        "total_fat": 42.98281478881836,
+        "total_carb": 64.55886840820312,
+        "total_protein": 76.1375732421875,
+        "total_mass": 2740.466064453125
+      },
+      "r2_per_target": {
+        "total_calories": 0.8436987996101379,
+        "total_fat": 0.763384222984314,
+        "total_carb": 0.742423415184021,
+        "total_protein": 0.8206108808517456,
+        "total_mass": 0.8863876461982727
+      },
+      "epoch": 21,
+      "train_loss": 0.15554582546093712,
+      "stage": "head_plus_last_6_blocks",
+      "learning_rate": 0.00015
+    },
+    {
+      "mse": 2110.130126953125,
+      "mae": 22.96646499633789,
+      "r2": 0.8079949617385864,
+      "loss": 0.9675872408783022,
+      "mae_per_target": {
+        "total_calories": 59.367637634277344,
+        "total_fat": 4.388082504272461,
+        "total_carb": 5.458734035491943,
+        "total_protein": 6.019286155700684,
+        "total_mass": 39.59856414794922
+      },
+      "mse_per_target": {
+        "total_calories": 7392.22802734375,
+        "total_fat": 44.381629943847656,
+        "total_carb": 60.12968063354492,
+        "total_protein": 81.00120544433594,
+        "total_mass": 2972.908447265625
+      },
+      "r2_per_target": {
+        "total_calories": 0.8382935523986816,
+        "total_fat": 0.7556838989257812,
+        "total_carb": 0.760094940662384,
+        "total_protein": 0.8091516494750977,
+        "total_mass": 0.8767512440681458
+      },
+      "epoch": 22,
+      "train_loss": 0.1519935468040361,
+      "stage": "head_plus_last_6_blocks",
+      "learning_rate": 0.00015
+    },
+    {
+      "mse": 1937.0390625,
+      "mae": 21.63667869567871,
+      "r2": 0.8172808885574341,
+      "loss": 0.9193990820512206,
+      "mae_per_target": {
+        "total_calories": 56.37221145629883,
+        "total_fat": 4.142984390258789,
+        "total_carb": 5.5871148109436035,
+        "total_protein": 5.582454681396484,
+        "total_mass": 36.49863052368164
+      },
+      "mse_per_target": {
+        "total_calories": 6914.62255859375,
+        "total_fat": 41.42042541503906,
+        "total_carb": 62.46306228637695,
+        "total_protein": 75.41219329833984,
+        "total_mass": 2591.277099609375
+      },
+      "r2_per_target": {
+        "total_calories": 0.8487412929534912,
+        "total_fat": 0.7719850540161133,
+        "total_carb": 0.750785231590271,
+        "total_protein": 0.8223199844360352,
+        "total_mass": 0.8925726413726807
+      },
+      "epoch": 23,
+      "train_loss": 0.1372822648359954,
+      "stage": "head_plus_last_6_blocks",
+      "learning_rate": 0.00015
+    },
+    {
+      "mse": 1944.859619140625,
+      "mae": 21.991687774658203,
+      "r2": 0.8168986439704895,
+      "loss": 0.9208358382398609,
+      "mae_per_target": {
+        "total_calories": 56.19168472290039,
+        "total_fat": 4.1215739250183105,
+        "total_carb": 5.7146382331848145,
+        "total_protein": 5.615010738372803,
+        "total_mass": 38.31550979614258
+      },
+      "mse_per_target": {
+        "total_calories": 6745.4423828125,
+        "total_fat": 40.344268798828125,
+        "total_carb": 64.27245330810547,
+        "total_protein": 73.55973815917969,
+        "total_mass": 2800.677490234375
+      },
+      "r2_per_target": {
+        "total_calories": 0.8524421453475952,
+        "total_fat": 0.7779091596603394,
+        "total_carb": 0.7435661554336548,
+        "total_protein": 0.8266845941543579,
+        "total_mass": 0.8838914632797241
+      },
+      "epoch": 24,
+      "train_loss": 0.13517081975205544,
+      "stage": "full_backbone",
+      "learning_rate": 7.5e-05
+    },
+    {
+      "mse": 1932.922607421875,
+      "mae": 21.68805503845215,
+      "r2": 0.8180769681930542,
+      "loss": 0.9151469759170751,
+      "mae_per_target": {
+        "total_calories": 55.54993438720703,
+        "total_fat": 4.116122722625732,
+        "total_carb": 5.589798927307129,
+        "total_protein": 5.526494026184082,
+        "total_mass": 37.65789031982422
+      },
+      "mse_per_target": {
+        "total_calories": 6740.0908203125,
+        "total_fat": 40.64360427856445,
+        "total_carb": 62.82048797607422,
+        "total_protein": 73.80826568603516,
+        "total_mass": 2747.251708984375
+      },
+      "r2_per_target": {
+        "total_calories": 0.8525592088699341,
+        "total_fat": 0.7762613296508789,
+        "total_carb": 0.749359130859375,
+        "total_protein": 0.8260990381240845,
+        "total_mass": 0.8861063718795776
+      },
+      "epoch": 25,
+      "train_loss": 0.13014114763290605,
+      "stage": "full_backbone",
+      "learning_rate": 7.5e-05
+    },
+    {
+      "mse": 1889.0218505859375,
+      "mae": 21.26331329345703,
+      "r2": 0.8224352598190308,
+      "loss": 0.8935466583033524,
+      "mae_per_target": {
+        "total_calories": 54.95814895629883,
+        "total_fat": 4.09121036529541,
+        "total_carb": 5.388426303863525,
+        "total_protein": 5.502941608428955,
+        "total_mass": 36.37583923339844
+      },
+      "mse_per_target": {
+        "total_calories": 6697.173828125,
+        "total_fat": 40.561893463134766,
+        "total_carb": 59.92074203491211,
+        "total_protein": 73.10157012939453,
+        "total_mass": 2574.35693359375
+      },
+      "r2_per_target": {
+        "total_calories": 0.8534980416297913,
+        "total_fat": 0.7767111659049988,
+        "total_carb": 0.7609285712242126,
+        "total_protein": 0.827764093875885,
+        "total_mass": 0.8932741284370422
+      },
+      "epoch": 26,
+      "train_loss": 0.13229374976977248,
+      "stage": "full_backbone",
+      "learning_rate": 7.5e-05
+    },
+    {
+      "mse": 1908.0126953125,
+      "mae": 21.2036075592041,
+      "r2": 0.8203521966934204,
+      "loss": 0.9039855130123459,
+      "mae_per_target": {
+        "total_calories": 55.095462799072266,
+        "total_fat": 4.099262714385986,
+        "total_carb": 5.392680644989014,
+        "total_protein": 5.463376045227051,
+        "total_mass": 35.967247009277344
+      },
+      "mse_per_target": {
+        "total_calories": 6794.36669921875,
+        "total_fat": 41.27141571044922,
+        "total_carb": 60.57563781738281,
+        "total_protein": 73.9308853149414,
+        "total_mass": 2569.917724609375
+      },
+      "r2_per_target": {
+        "total_calories": 0.8513718843460083,
+        "total_fat": 0.7728053331375122,
+        "total_carb": 0.7583156824111938,
+        "total_protein": 0.8258101344108582,
+        "total_mass": 0.8934581279754639
+      },
+      "epoch": 27,
+      "train_loss": 0.12534537611563512,
+      "stage": "full_backbone",
+      "learning_rate": 7.5e-05
+    },
+    {
+      "mse": 1873.6090087890625,
+      "mae": 21.170604705810547,
+      "r2": 0.8222548365592957,
+      "loss": 0.8940973242855267,
+      "mae_per_target": {
+        "total_calories": 54.71108627319336,
+        "total_fat": 4.039317607879639,
+        "total_carb": 5.434986114501953,
+        "total_protein": 5.424393177032471,
+        "total_mass": 36.24325942993164
+      },
+      "mse_per_target": {
+        "total_calories": 6632.11669921875,
+        "total_fat": 39.904197692871094,
+        "total_carb": 61.74971389770508,
+        "total_protein": 72.75348663330078,
+        "total_mass": 2561.52099609375
+      },
+      "r2_per_target": {
+        "total_calories": 0.8549211621284485,
+        "total_fat": 0.7803317308425903,
+        "total_carb": 0.7536313533782959,
+        "total_protein": 0.8285842537879944,
+        "total_mass": 0.8938062191009521
+      },
+      "epoch": 28,
+      "train_loss": 0.12228462045178091,
+      "stage": "full_backbone",
+      "learning_rate": 7.5e-05
+    },
+    {
+      "mse": 1864.111572265625,
+      "mae": 21.00992202758789,
+      "r2": 0.8233901858329773,
+      "loss": 0.8881783007600312,
+      "mae_per_target": {
+        "total_calories": 54.33595275878906,
+        "total_fat": 4.0370001792907715,
+        "total_carb": 5.4497857093811035,
+        "total_protein": 5.308778762817383,
+        "total_mass": 35.918128967285156
+      },
+      "mse_per_target": {
+        "total_calories": 6562.9755859375,
+        "total_fat": 39.90320587158203,
+        "total_carb": 61.32730484008789,
+        "total_protein": 71.28951263427734,
+        "total_mass": 2585.061767578125
+      },
+      "r2_per_target": {
+        "total_calories": 0.856433629989624,
+        "total_fat": 0.7803371548652649,
+        "total_carb": 0.7553166151046753,
+        "total_protein": 0.8320335149765015,
+        "total_mass": 0.8928303122520447
+      },
+      "epoch": 29,
+      "train_loss": 0.12010991286280696,
+      "stage": "full_backbone",
+      "learning_rate": 7.5e-05
+    },
+    {
+      "mse": 1920.679443359375,
+      "mae": 21.37032127380371,
+      "r2": 0.8200588226318359,
+      "loss": 0.9053321889085516,
+      "mae_per_target": {
+        "total_calories": 54.58024215698242,
+        "total_fat": 4.012528896331787,
+        "total_carb": 5.5208024978637695,
+        "total_protein": 5.467155456542969,
+        "total_mass": 37.27086639404297
+      },
+      "mse_per_target": {
+        "total_calories": 6717.734375,
+        "total_fat": 39.570884704589844,
+        "total_carb": 62.50935745239258,
+        "total_protein": 73.49736022949219,
+        "total_mass": 2710.08447265625
+      },
+      "r2_per_target": {
+        "total_calories": 0.8530482649803162,
+        "total_fat": 0.7821665406227112,
+        "total_carb": 0.7506005167961121,
+        "total_protein": 0.826831579208374,
+        "total_mass": 0.8876472115516663
+      },
+      "epoch": 30,
+      "train_loss": 0.11459402344161015,
+      "stage": "full_backbone",
+      "learning_rate": 7.5e-05
+    },
+    {
+      "mse": 1847.473876953125,
+      "mae": 20.744155883789062,
+      "r2": 0.8251579999923706,
+      "loss": 0.8793085289391516,
+      "mae_per_target": {
+        "total_calories": 53.48492431640625,
+        "total_fat": 4.006665229797363,
+        "total_carb": 5.414724349975586,
+        "total_protein": 5.239721298217773,
+        "total_mass": 35.574745178222656
+      },
+      "mse_per_target": {
+        "total_calories": 6579.55126953125,
+        "total_fat": 39.6746940612793,
+        "total_carb": 60.683658599853516,
+        "total_protein": 70.73834991455078,
+        "total_mass": 2486.71630859375
+      },
+      "r2_per_target": {
+        "total_calories": 0.8560710549354553,
+        "total_fat": 0.7815951108932495,
+        "total_carb": 0.757884681224823,
+        "total_protein": 0.8333321213722229,
+        "total_mass": 0.8969074487686157
+      },
+      "epoch": 31,
+      "train_loss": 0.11504530805203081,
+      "stage": "full_backbone",
+      "learning_rate": 7.5e-05
+    },
+    {
+      "mse": 1820.201416015625,
+      "mae": 20.607837677001953,
+      "r2": 0.8281549215316772,
+      "loss": 0.8644980097109555,
+      "mae_per_target": {
+        "total_calories": 52.878849029541016,
+        "total_fat": 3.9776923656463623,
+        "total_carb": 5.337344646453857,
+        "total_protein": 5.263503074645996,
+        "total_mass": 35.58180618286133
+      },
+      "mse_per_target": {
+        "total_calories": 6406.07275390625,
+        "total_fat": 38.80250549316406,
+        "total_carb": 59.02842330932617,
+        "total_protein": 70.12127685546875,
+        "total_mass": 2526.9814453125
+      },
+      "r2_per_target": {
+        "total_calories": 0.8598659038543701,
+        "total_fat": 0.7863963842391968,
+        "total_carb": 0.764488697052002,
+        "total_protein": 0.8347859978675842,
+        "total_mass": 0.8952381610870361
+      },
+      "epoch": 32,
+      "train_loss": 0.11387926467174402,
+      "stage": "full_backbone",
+      "learning_rate": 7.5e-05
+    },
+    {
+      "mse": 1922.0316162109375,
+      "mae": 21.515737533569336,
+      "r2": 0.8220780491828918,
+      "loss": 0.8952285711994444,
+      "mae_per_target": {
+        "total_calories": 55.12213134765625,
+        "total_fat": 4.063117980957031,
+        "total_carb": 5.429615020751953,
+        "total_protein": 5.511327266693115,
+        "total_mass": 37.45249557495117
+      },
+      "mse_per_target": {
+        "total_calories": 6720.849609375,
+        "total_fat": 40.1607780456543,
+        "total_carb": 60.132625579833984,
+        "total_protein": 71.70256805419922,
+        "total_mass": 2717.31298828125
+      },
+      "r2_per_target": {
+        "total_calories": 0.8529801368713379,
+        "total_fat": 0.7789192199707031,
+        "total_carb": 0.7600831985473633,
+        "total_protein": 0.8310602903366089,
+        "total_mass": 0.8873475193977356
+      },
+      "epoch": 33,
+      "train_loss": 0.11387489210425711,
+      "stage": "full_backbone",
+      "learning_rate": 7.5e-05
+    },
+    {
+      "mse": 1838.8707275390625,
+      "mae": 20.758930206298828,
+      "r2": 0.8282758593559265,
+      "loss": 0.8638726489919338,
+      "mae_per_target": {
+        "total_calories": 54.082191467285156,
+        "total_fat": 4.019223213195801,
+        "total_carb": 5.257713794708252,
+        "total_protein": 5.20640754699707,
+        "total_mass": 35.229103088378906
+      },
+      "mse_per_target": {
+        "total_calories": 6525.8017578125,
+        "total_fat": 39.532928466796875,
+        "total_carb": 58.014034271240234,
+        "total_protein": 69.20761108398438,
+        "total_mass": 2501.795654296875
+      },
+      "r2_per_target": {
+        "total_calories": 0.8572468161582947,
+        "total_fat": 0.7823755145072937,
+        "total_carb": 0.7685359120368958,
+        "total_protein": 0.836938738822937,
+        "total_mass": 0.8962823152542114
+      },
+      "epoch": 34,
+      "train_loss": 0.10929015038386444,
+      "stage": "full_backbone",
+      "learning_rate": 7.5e-05
+    },
+    {
+      "mse": 1870.537353515625,
+      "mae": 20.70932960510254,
+      "r2": 0.8273962736129761,
+      "loss": 0.8689332135128341,
+      "mae_per_target": {
+        "total_calories": 53.586578369140625,
+        "total_fat": 3.978091239929199,
+        "total_carb": 5.202019691467285,
+        "total_protein": 5.147663116455078,
+        "total_mass": 35.63233184814453
+      },
+      "mse_per_target": {
+        "total_calories": 6645.1953125,
+        "total_fat": 39.35749053955078,
+        "total_carb": 57.172607421875,
+        "total_protein": 71.13123321533203,
+        "total_mass": 2539.827392578125
+      },
+      "r2_per_target": {
+        "total_calories": 0.8546350598335266,
+        "total_fat": 0.7833412885665894,
+        "total_carb": 0.7718930244445801,
+        "total_protein": 0.8324064612388611,
+        "total_mass": 0.894705593585968
+      },
+      "epoch": 35,
+      "train_loss": 0.11040095946540131,
+      "stage": "full_backbone",
+      "learning_rate": 7.5e-05
+    },
+    {
+      "mse": 1931.499267578125,
+      "mae": 21.29595947265625,
+      "r2": 0.8213483095169067,
+      "loss": 0.899005059084278,
+      "mae_per_target": {
+        "total_calories": 55.37913131713867,
+        "total_fat": 4.0782365798950195,
+        "total_carb": 5.425294876098633,
+        "total_protein": 5.319286823272705,
+        "total_mass": 36.2778434753418
+      },
+      "mse_per_target": {
+        "total_calories": 6926.66796875,
+        "total_fat": 40.68488311767578,
+        "total_carb": 60.27775192260742,
+        "total_protein": 72.68769073486328,
+        "total_mass": 2557.181396484375
+      },
+      "r2_per_target": {
+        "total_calories": 0.8484777808189392,
+        "total_fat": 0.7760341167449951,
+        "total_carb": 0.7595041394233704,
+        "total_protein": 0.8287392258644104,
+        "total_mass": 0.893986165523529
+      },
+      "epoch": 36,
+      "train_loss": 0.10235376476875843,
+      "stage": "full_backbone",
+      "learning_rate": 7.5e-05
+    },
+    {
+      "mse": 1820.1402587890625,
+      "mae": 20.72496223449707,
+      "r2": 0.8308442234992981,
+      "loss": 0.8513129376682523,
+      "mae_per_target": {
+        "total_calories": 54.10763931274414,
+        "total_fat": 4.047361373901367,
+        "total_carb": 5.17047119140625,
+        "total_protein": 5.310843467712402,
+        "total_mass": 34.98847961425781
+      },
+      "mse_per_target": {
+        "total_calories": 6526.34130859375,
+        "total_fat": 39.153839111328125,
+        "total_carb": 56.25322341918945,
+        "total_protein": 69.23990631103516,
+        "total_mass": 2409.715087890625
+      },
+      "r2_per_target": {
+        "total_calories": 0.8572350144386292,
+        "total_fat": 0.7844623327255249,
+        "total_carb": 0.7755612134933472,
+        "total_protein": 0.8368626236915588,
+        "total_mass": 0.9000996947288513
+      },
+      "epoch": 37,
+      "train_loss": 0.1038174446375092,
+      "stage": "full_backbone",
+      "learning_rate": 7.5e-05
+    },
+    {
+      "mse": 1849.8326416015625,
+      "mae": 20.69805908203125,
+      "r2": 0.8290648460388184,
+      "loss": 0.8601790508122045,
+      "mae_per_target": {
+        "total_calories": 53.31282043457031,
+        "total_fat": 3.9693262577056885,
+        "total_carb": 5.185171604156494,
+        "total_protein": 5.222221851348877,
+        "total_mass": 35.80072784423828
+      },
+      "mse_per_target": {
+        "total_calories": 6548.88525390625,
+        "total_fat": 39.08012771606445,
+        "total_carb": 57.18214797973633,
+        "total_protein": 69.20462799072266,
+        "total_mass": 2534.810302734375
+      },
+      "r2_per_target": {
+        "total_calories": 0.8567418456077576,
+        "total_fat": 0.7848681211471558,
+        "total_carb": 0.7718549966812134,
+        "total_protein": 0.8369457721710205,
+        "total_mass": 0.8949136137962341
+      },
+      "epoch": 38,
+      "train_loss": 0.10022759285806879,
+      "stage": "full_backbone",
+      "learning_rate": 7.5e-05
+    },
+    {
+      "mse": 1862.26171875,
+      "mae": 20.7439022064209,
+      "r2": 0.8272585868835449,
+      "loss": 0.869021638039431,
+      "mae_per_target": {
+        "total_calories": 53.836509704589844,
+        "total_fat": 4.012966632843018,
+        "total_carb": 5.215574741363525,
+        "total_protein": 5.221833229064941,
+        "total_mass": 35.43263626098633
+      },
+      "mse_per_target": {
+        "total_calories": 6643.6328125,
+        "total_fat": 40.049503326416016,
+        "total_carb": 57.89373016357422,
+        "total_protein": 69.29292297363281,
+        "total_mass": 2500.44140625
+      },
+      "r2_per_target": {
+        "total_calories": 0.8546692132949829,
+        "total_fat": 0.7795318365097046,
+        "total_carb": 0.769015908241272,
+        "total_protein": 0.8367377519607544,
+        "total_mass": 0.8963384628295898
+      },
+      "epoch": 39,
+      "train_loss": 0.09902587621672754,
+      "stage": "full_backbone",
+      "learning_rate": 7.5e-05
+    },
+    {
+      "mse": 1787.201171875,
+      "mae": 20.299434661865234,
+      "r2": 0.8334138989448547,
+      "loss": 0.8382368263291435,
+      "mae_per_target": {
+        "total_calories": 52.6191520690918,
+        "total_fat": 3.8897321224212646,
+        "total_carb": 5.102323055267334,
+        "total_protein": 5.076277732849121,
+        "total_mass": 34.80966567993164
+      },
+      "mse_per_target": {
+        "total_calories": 6386.94970703125,
+        "total_fat": 38.199337005615234,
+        "total_carb": 56.123538970947266,
+        "total_protein": 67.93377685546875,
+        "total_mass": 2386.798095703125
+      },
+      "r2_per_target": {
+        "total_calories": 0.8602842092514038,
+        "total_fat": 0.7897167801856995,
+        "total_carb": 0.7760785818099976,
+        "total_protein": 0.8399400115013123,
+        "total_mass": 0.901049792766571
+      },
+      "epoch": 40,
+      "train_loss": 0.09840236584101718,
+      "stage": "full_backbone",
+      "learning_rate": 7.5e-05
+    },
+    {
+      "mse": 1761.068603515625,
+      "mae": 20.16494369506836,
+      "r2": 0.835366427898407,
+      "loss": 0.8283200917312217,
+      "mae_per_target": {
+        "total_calories": 52.107826232910156,
+        "total_fat": 3.843258857727051,
+        "total_carb": 5.095640659332275,
+        "total_protein": 5.046488285064697,
+        "total_mass": 34.73150634765625
+      },
+      "mse_per_target": {
+        "total_calories": 6304.5517578125,
+        "total_fat": 37.641841888427734,
+        "total_carb": 55.8913688659668,
+        "total_protein": 67.071044921875,
+        "total_mass": 2340.183349609375
+      },
+      "r2_per_target": {
+        "total_calories": 0.8620867133140564,
+        "total_fat": 0.7927857041358948,
+        "total_carb": 0.7770049571990967,
+        "total_protein": 0.8419727087020874,
+        "total_mass": 0.9029822945594788
+      },
+      "epoch": 41,
+      "train_loss": 0.09436155201101595,
+      "stage": "full_backbone",
+      "learning_rate": 7.5e-05
+    },
+    {
+      "mse": 1709.521240234375,
+      "mae": 19.970108032226562,
+      "r2": 0.8390321731567383,
+      "loss": 0.8095302172233722,
+      "mae_per_target": {
+        "total_calories": 51.38969421386719,
+        "total_fat": 3.8380374908447266,
+        "total_carb": 5.0857930183410645,
+        "total_protein": 4.9764628410339355,
+        "total_mass": 34.56052780151367
+      },
+      "mse_per_target": {
+        "total_calories": 6035.07275390625,
+        "total_fat": 36.65350341796875,
+        "total_carb": 55.42931365966797,
+        "total_protein": 64.61007690429688,
+        "total_mass": 2355.840087890625
+      },
+      "r2_per_target": {
+        "total_calories": 0.8679816126823425,
+        "total_fat": 0.7982264161109924,
+        "total_carb": 0.77884840965271,
+        "total_protein": 0.8477710485458374,
+        "total_mass": 0.9023332595825195
+      },
+      "epoch": 42,
+      "train_loss": 0.09749262721443469,
+      "stage": "full_backbone",
+      "learning_rate": 7.5e-05
+    },
+    {
+      "mse": 1700.830810546875,
+      "mae": 20.05274772644043,
+      "r2": 0.8393058776855469,
+      "loss": 0.8078347169060892,
+      "mae_per_target": {
+        "total_calories": 51.722721099853516,
+        "total_fat": 3.8400137424468994,
+        "total_carb": 5.1287360191345215,
+        "total_protein": 4.9767866134643555,
+        "total_mass": 34.59550094604492
+      },
+      "mse_per_target": {
+        "total_calories": 6042.25048828125,
+        "total_fat": 36.53645706176758,
+        "total_carb": 56.25440216064453,
+        "total_protein": 63.7264404296875,
+        "total_mass": 2305.38916015625
+      },
+      "r2_per_target": {
+        "total_calories": 0.8678246140480042,
+        "total_fat": 0.7988707423210144,
+        "total_carb": 0.7755565047264099,
+        "total_protein": 0.8498530387878418,
+        "total_mass": 0.904424786567688
+      },
+      "epoch": 43,
+      "train_loss": 0.09532067768412865,
+      "stage": "full_backbone",
+      "learning_rate": 7.5e-05
+    },
+    {
+      "mse": 1791.071533203125,
+      "mae": 20.30417251586914,
+      "r2": 0.8344925045967102,
+      "loss": 0.832809487247272,
+      "mae_per_target": {
+        "total_calories": 52.43523406982422,
+        "total_fat": 3.826138496398926,
+        "total_carb": 5.115838527679443,
+        "total_protein": 5.045097351074219,
+        "total_mass": 35.09859085083008
+      },
+      "mse_per_target": {
+        "total_calories": 6381.99658203125,
+        "total_fat": 37.230491638183594,
+        "total_carb": 56.338600158691406,
+        "total_protein": 67.13523864746094,
+        "total_mass": 2412.653564453125
+      },
+      "r2_per_target": {
+        "total_calories": 0.8603925704956055,
+        "total_fat": 0.7950501441955566,
+        "total_carb": 0.7752205729484558,
+        "total_protein": 0.8418214917182922,
+        "total_mass": 0.8999778628349304
+      },
+      "epoch": 44,
+      "train_loss": 0.09269893322985596,
+      "stage": "full_backbone",
+      "learning_rate": 7.5e-05
+    },
+    {
+      "mse": 1742.0941162109375,
+      "mae": 19.978809356689453,
+      "r2": 0.837566077709198,
+      "loss": 0.8168302976768197,
+      "mae_per_target": {
+        "total_calories": 51.65557098388672,
+        "total_fat": 3.809563398361206,
+        "total_carb": 5.111232757568359,
+        "total_protein": 4.908276081085205,
+        "total_mass": 34.409427642822266
+      },
+      "mse_per_target": {
+        "total_calories": 6185.68603515625,
+        "total_fat": 36.78300476074219,
+        "total_carb": 56.19912338256836,
+        "total_protein": 64.51518249511719,
+        "total_mass": 2367.287841796875
+      },
+      "r2_per_target": {
+        "total_calories": 0.864686906337738,
+        "total_fat": 0.7975135445594788,
+        "total_carb": 0.7757770419120789,
+        "total_protein": 0.8479946255683899,
+        "total_mass": 0.9018586277961731
+      },
+      "epoch": 45,
+      "train_loss": 0.09124798175016063,
+      "stage": "full_backbone",
+      "learning_rate": 7.5e-05
     }
-  ]
+  ],
+  "backbone_schedule": {
+    "freeze_backbone": true,
+    "freeze_epochs": 3,
+    "trainable_backbone_layers_requested": 6,
+    "available_backbone_groups": 9,
+    "full_unfreeze_epoch": 24,
+    "unfreeze_lr_factor": 0.5,
+    "initial_partial_blocks": 0,
+    "latest_partial_blocks": 6
+  },
+  "early_stopping": {
+    "enabled": true,
+    "patience": 8,
+    "min_delta": 0.01,
+    "warmup_epochs": 12,
+    "triggered": false,
+    "trigger_epoch": null
+  }
 }

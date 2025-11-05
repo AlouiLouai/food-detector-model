@@ -22,11 +22,47 @@ pip install -r requirements-train.txt
 python train_food_regression.py \
   --dataset-name mmathys/food-nutrients \
   --target-cols total_calories total_fat total_carb total_protein total_mass \
-  --epochs 20 \
+  --epochs 50 \
+  --model efficientnet_b4 \
+  --head-dropout 0.3 \
   --output-dir model
 ```
 
-The script downloads the specified Hugging Face dataset, fine-tunes a lightweight backbone (MobileNetV3 by default), and refreshes the contents of `model/` with new weights and metadata. Adjust hyperparameters or dataset splits via `python train_food_regression.py --help`.
+The script downloads the specified Hugging Face dataset, fine-tunes a lightweight backbone (EfficientNet-B0 remains the default; the example above opts into EfficientNet-B4), and refreshes the contents of `model/` with new weights and metadata. Adjust hyperparameters or dataset splits via `python train_food_regression.py --help`.
+
+To follow a "freeze then progressively unfreeze" routine, append for example:
+
+```bash
+  --freeze-backbone \
+  --freeze-epochs 3 \
+  --trainable-backbone-layers 6 \
+  --full-unfreeze-epoch 24 \
+  --unfreeze-lr-factor 0.5 \
+  --grad-clip-norm 1.0 \
+  --early-stop-patience 8 \
+  --early-stop-min-delta 0.01
+```
+
+### Choosing a Backbone
+
+The `--model` flag now supports modern pretrained encoders (`resnet50`, `efficientnet_b0/b3`, `convnext_base`, `vit_b_16`, etc.). By default, ImageNet weights are loaded and the final classification layer is replaced with a dropout-backed regression head that outputs calories, fat, carbs, protein, and mass. Useful extras:
+
+- `--no-pretrained` – train from scratch (not recommended unless you have a large domain dataset).
+- `--freeze-backbone` – fine-tune only the regression head on top of frozen pretrained features.
+- `--trainable-backbone-layers 4` – when used with `--freeze-backbone`, unfreeze the last 4 backbone parameter groups for deeper fine-tuning.
+- `--head-dropout 0.3` – adjust regularisation strength before the regression head.
+
+### Training Enhancements
+
+Recent updates add several quality-of-life improvements:
+
+- Stronger data augmentation (random crops, flips, affine jitter, and color jitter) enabled by default to improve generalisation. Disable with `--no-augment`.
+- Automatic mixed precision on CUDA for faster, more stable optimisation (toggle off with `--no-amp`).
+- ReduceLROnPlateau learning-rate scheduling applied each epoch unless `--no-lr-scheduler` is supplied.
+- Support for deeper backbones such as `efficientnet_b4` in addition to the previous options.
+- Progressive backbone fine-tuning when `--freeze-backbone` is set: warm up on the regression head for a few epochs (`--freeze-epochs`), optionally unfreeze the last `n` backbone blocks (`--trainable-backbone-layers`), and automatically unfreeze the entire encoder later in training (`--full-unfreeze-epoch`). Learning rates for all parameter groups decay by `--unfreeze-lr-factor` after each unfreeze stage.
+- Optional gradient clipping via `--grad-clip-norm` and richer per-target validation metrics saved to `training_metadata.json`.
+- Early stopping support (`--early-stop-patience`, `--early-stop-min-delta`, `--early-stop-warmup`) so long runs halt automatically once the validation loss stops improving.
 
 ## Local Development
 ```bash
@@ -78,6 +114,7 @@ pytest -q
    docker compose ps
    docker compose logs -f food-model
    ```
+   If the API serves browser clients, add `FOOD_API_ALLOWED_ORIGINS=http://localhost:3000` (comma-separated for multiples) to your `.env` so CORS headers are emitted.
 5. **Integrate with MLOps tooling**: attach logs to Azure Monitor, enable automated image builds (e.g., via GitHub Actions/Azure DevOps), and manage secrets (API keys, TLS) with Azure Key Vault or Docker secrets.
 
 ## Operations Checklist

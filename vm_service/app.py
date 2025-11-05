@@ -20,6 +20,21 @@ from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image
 from pydantic import BaseModel, Field, ValidationError
 from torchvision import transforms
+from torchvision.models import (
+    convnext_base,
+    efficientnet_b0,
+    efficientnet_b3,
+    efficientnet_b4,
+    mobilenet_v3_small,
+    resnet50,
+    vit_b_16,
+    vit_b_32,
+)
+
+try:  # pragma: no cover - optional model availability
+    from torchvision.models import efficientnet_lite0
+except ImportError:  # pragma: no cover - when efficientnet_lite0 is missing
+    efficientnet_lite0 = None
 
 logger = logging.getLogger("vm_service")
 logger.setLevel(logging.INFO)
@@ -51,6 +66,7 @@ class NutritionModelService:
         self.normalizer: TargetNormalizer | None = None
         self.normalize_targets: bool = True
         self.image_size: int = 224
+        self.head_dropout: float = 0.0
 
     def load(self) -> None:
         if not self.model_dir.exists():
@@ -74,6 +90,9 @@ class NutritionModelService:
         args_payload = metadata.get("args", {})
         model_name = args_payload.get("model", metadata.get("model_name", "mobilenet_v3_small"))
         self.image_size = int(metadata.get("image_size", args_payload.get("image_size", 224)))
+        self.head_dropout = float(
+            args_payload.get("head_dropout", metadata.get("head_dropout", 0.0) or 0.0)
+        )
         self.target_columns = metadata.get(
             "target_columns", args_payload.get("target_cols", [])
         )
@@ -86,7 +105,11 @@ class NutritionModelService:
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         logger.info("Loading model '%s' onto %s", model_name, self.device)
-        self.model = self._build_model(model_name=model_name, num_outputs=len(self.target_columns))
+        self.model = self._build_model(
+            model_name=model_name,
+            num_outputs=len(self.target_columns),
+            head_dropout=self.head_dropout,
+        )
         state_dict = torch.load(weights_path, map_location="cpu")
         self.model.load_state_dict(state_dict)
         self.model.to(self.device)
@@ -121,26 +144,81 @@ class NutritionModelService:
         logger.info("Model loaded successfully with targets: %s", self.target_columns)
 
     @staticmethod
-    def _build_model(model_name: str, num_outputs: int) -> torch.nn.Module:
-        if model_name == "mobilenet_v3_small":
-            from torchvision.models import mobilenet_v3_small
+    def _build_head(in_features: int, num_outputs: int, dropout: float) -> torch.nn.Module:
+        layers: List[torch.nn.Module] = []
+        dropout = max(0.0, float(dropout))
+        if dropout > 0:
+            layers.append(torch.nn.Dropout(p=min(dropout, 0.95)))
+        layers.append(torch.nn.Linear(in_features, num_outputs))
+        return torch.nn.Sequential(*layers)
 
+    @staticmethod
+    def _build_model(model_name: str, num_outputs: int, head_dropout: float) -> torch.nn.Module:
+        if model_name == "mobilenet_v3_small":
             model = mobilenet_v3_small(weights=None)
             in_features = model.classifier[-1].in_features
-            model.classifier[-1] = torch.nn.Linear(in_features, num_outputs)
+            model.classifier[-1] = NutritionModelService._build_head(
+                in_features, num_outputs, head_dropout
+            )
             return model
         if model_name == "efficientnet_lite0":
-            try:
-                from torchvision.models import efficientnet_lite0
-            except ImportError as exc:  # pragma: no cover - depends on torchvision build
+            if efficientnet_lite0 is None:
                 raise ImportError(
                     "efficientnet_lite0 is unavailable in the installed torchvision build. "
-                    "Upgrade torchvision or retrain/export with mobilenet_v3_small."
-                ) from exc
-
+                    "Upgrade torchvision or retrain/export with a supported backbone."
+                )
             model = efficientnet_lite0(weights=None)
             in_features = model.classifier[-1].in_features
-            model.classifier[-1] = torch.nn.Linear(in_features, num_outputs)
+            model.classifier[-1] = NutritionModelService._build_head(
+                in_features, num_outputs, head_dropout
+            )
+            return model
+        if model_name == "efficientnet_b0":
+            model = efficientnet_b0(weights=None)
+            in_features = model.classifier[-1].in_features
+            model.classifier[-1] = NutritionModelService._build_head(
+                in_features, num_outputs, head_dropout
+            )
+            return model
+        if model_name == "efficientnet_b3":
+            model = efficientnet_b3(weights=None)
+            in_features = model.classifier[-1].in_features
+            model.classifier[-1] = NutritionModelService._build_head(
+                in_features, num_outputs, head_dropout
+            )
+            return model
+        if model_name == "efficientnet_b4":
+            model = efficientnet_b4(weights=None)
+            in_features = model.classifier[-1].in_features
+            model.classifier[-1] = NutritionModelService._build_head(
+                in_features, num_outputs, head_dropout
+            )
+            return model
+        if model_name == "resnet50":
+            model = resnet50(weights=None)
+            in_features = model.fc.in_features
+            model.fc = NutritionModelService._build_head(in_features, num_outputs, head_dropout)
+            return model
+        if model_name == "convnext_base":
+            model = convnext_base(weights=None)
+            in_features = model.classifier[-1].in_features
+            model.classifier[-1] = NutritionModelService._build_head(
+                in_features, num_outputs, head_dropout
+            )
+            return model
+        if model_name == "vit_b_16":
+            model = vit_b_16(weights=None)
+            in_features = model.heads.head.in_features
+            model.heads.head = NutritionModelService._build_head(
+                in_features, num_outputs, head_dropout
+            )
+            return model
+        if model_name == "vit_b_32":
+            model = vit_b_32(weights=None)
+            in_features = model.heads.head.in_features
+            model.heads.head = NutritionModelService._build_head(
+                in_features, num_outputs, head_dropout
+            )
             return model
         raise ValueError(f"Unsupported model architecture '{model_name}'.")
 
